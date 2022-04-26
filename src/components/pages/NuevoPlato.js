@@ -1,16 +1,26 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
 import { firebaseContext } from '../../firebase'
+import { useNavigate } from 'react-router-dom'
+import FileUploader from 'react-firebase-file-uploader'
 
 const NuevoPlato = () => {
 
+    //State para las imagenes
+    const [upload, setUpload] = useState(false)
+    const [progress, setProgress] = useState(0)
+    const [urlImg, setUrlImg] = useState('')
+
     //Context con las operaciones de firebase
     const { firebase } = useContext(firebaseContext)
-    // console.log(firebase)
+    // console.log(firebase);
+
+    //Hook para redireccionar 
+    const navigate = useNavigate();
 
     //Validar y lectura de los datos del formulario
-    const  formik  =  useFormik({
+    const formik = useFormik({
         initialValues: {
             nombre: '',
             precio: '',
@@ -32,13 +42,50 @@ const NuevoPlato = () => {
                 .required('La descripción es obligatoria'),
         }),
         onSubmit: plato => {
-            try {   
+            try {
+                plato.existencia = true;
+                plato.imagen = urlImg
                 firebase.db.collection('productos').add(plato)
+                navigate('/menu')
             } catch (error) {
                 console.log(error)
             }
         }
-    })
+    });
+
+    //Funciones para las imagenes
+
+    const handleUploadStart = () => {
+        setProgress(0);
+        setUpload(true);
+    }
+
+    const handleUploadError = error => {
+        setUpload(false);
+        console.log(error);
+    }
+
+    const handleUploadSuccess = async nombre => {
+        setProgress(100);
+        setUpload(false);
+
+        //Almacenar la url de destino
+        const url = await firebase
+            .storage
+            .ref("productos")
+            .child(nombre)
+            .getDownloadURL();
+
+        console.log(url)
+        setUrlImg(url);
+    }
+
+    const handleProgress = progress => {
+        setProgress(progress);
+        console.log(progress)
+
+    }
+
 
     return (
         <>
@@ -117,13 +164,16 @@ const NuevoPlato = () => {
 
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="imagen">Imagen</label>
-                            <input
+                            <FileUploader
+                                accept="image/*"
                                 id="imagen"
-                                className="shadow appareance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                type="file"
-                                value={formik.values.imagen}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
+                                name="imagen"
+                                randomizeFilename
+                                storageRef={firebase.storage.ref("productos")}
+                                onUploadStart={handleUploadStart}
+                                onUploadError={handleUploadError}
+                                onUploadSuccess={handleUploadSuccess}
+                                onProgress={handleProgress}
                             />
                         </div>
 
