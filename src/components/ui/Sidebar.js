@@ -10,8 +10,8 @@ const Sidebar = () => {
                 <p className="mt-3 text-gray-600">Administra las ordenes en las siguientes opciones</p>
 
                 <nav>
-                    <NavLink exact to="/" className="p-1 text-gray-400 block hover:bg-yellow-500 hover:text-gray-900" activeClassName="text-yellow-500" >Ordenes</NavLink>
-                    <NavLink exact to="/menu" className="p-1 text-gray-400 block hover:bg-yellow-500 hover:text-gray-900" activeClassName="text-yellow-500">Menu</NavLink>
+                    <NavLink exact="true" to="/" className="p-1 text-gray-400 block hover:bg-yellow-500 hover:text-gray-900">Ordenes</NavLink>
+                    <NavLink exact="true" to="/menu" className="p-1 text-gray-400 block hover:bg-yellow-500 hover:text-gray-900">Menu</NavLink>
                 </nav>
             </div>
         </div>

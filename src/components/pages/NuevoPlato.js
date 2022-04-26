@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
+import { firebaseContext } from '../../firebase'
 
 const NuevoPlato = () => {
 
+    //Context con las operaciones de firebase
+    const { firebase } = useContext(firebaseContext)
+    // console.log(firebase)
+
     //Validar y lectura de los datos del formulario
-    const formik = useFormik({
+    const  formik  =  useFormik({
         initialValues: {
             nombre: '',
             precio: '',
@@ -26,8 +31,12 @@ const NuevoPlato = () => {
                 .min(13, 'La descripción debe de tener como minimo 13 carácteres')
                 .required('La descripción es obligatoria'),
         }),
-        onSubmit: (data) => {
-            console.log(data)
+        onSubmit: plato => {
+            try {   
+                firebase.db.collection('productos').add(plato)
+            } catch (error) {
+                console.log(error)
+            }
         }
     })
 
